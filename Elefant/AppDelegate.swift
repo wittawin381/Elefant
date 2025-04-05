@@ -8,13 +8,22 @@
 import UIKit
 import CoreData
 
+let kSessionProfileNotificationDataKey = "session_profile_notification_key"
+
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
+    lazy var profileController: ProfileController = {
+        let profileController = ProfileController(keychain: Keychain(), userDefaults: UserDefaults(suiteName: "suite.com.wittawin.Elefant") ?? UserDefaults.standard)
+        profileController.delegate = self
+        
+        return profileController
+    } ()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        Task {
+            await profileController.loadProfile()
+        }
         return true
     }
 
@@ -79,3 +88,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+extension AppDelegate: ProfileControllerDelegate {
+    func profileController(_ profileController: ProfileController, didSelectActiveProfile profile: Profile) {
+        NotificationCenter.default.post(
+            name: NSNotification.Name.SessionManagerDidSelectActiveProfile,
+            object: nil,
+            userInfo: [kSessionProfileNotificationDataKey: profile])
+    }
+    
+    func profileControllerDidFailToSelectActiveProfile(_ profileController: ProfileController) {
+        NotificationCenter.default.post(
+            name: NSNotification.Name.SessionManagerDidFailToSelectActiveProfile,
+            object: nil)
+    }
+}
+
+extension NSNotification.Name {
+    static let SessionManagerDidSelectActiveProfile = NSNotification.Name("session_manager_did_change_active_profile")
+    static let SessionManagerDidFailToSelectActiveProfile = NSNotification.Name("session_manager_did_faile_to_select_active_profile")
+}
