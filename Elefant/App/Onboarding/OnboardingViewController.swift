@@ -105,7 +105,7 @@ class OnboardingViewController: UIViewController {
     }
     
     @objc private func addKeyChainButtonDidTap() {
-        let token = Token(accessToken: "accessToken", tokenType: "Bearer", scope: "scope", createdAt: Date.now)
+        let token = Token(accessToken: "accessToken", tokenType: "Bearer", scope: "scope", createdAt: 0)
         Task {
             let result = await keychain.set(token, for: UUID().uuidString)
         }

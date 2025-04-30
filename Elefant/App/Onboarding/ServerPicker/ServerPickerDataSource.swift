@@ -29,11 +29,12 @@ enum ServerPicker {
 protocol ServerPickerViewControllerDataSource: UISearchResultsUpdating {
     var items: [Server] { get }
     
+    func setup(with collectionView: UICollectionView)
     func update(items: [Server])
 }
 
 class ServerPickerDataSource: NSObject, ServerPickerViewControllerDataSource {
-    private var dataSource: UICollectionViewDiffableDataSource<ServerPicker.Section, ServerPicker.Item>!
+    private var dataSource: UICollectionViewDiffableDataSource<ServerPicker.Section, ServerPicker.Item>?
     var items: [Server] = []
         
     func setup(with collectionView: UICollectionView) {
@@ -72,7 +73,7 @@ class ServerPickerDataSource: NSObject, ServerPickerViewControllerDataSource {
             snapshot.appendItems(section.items)
         }
         
-        dataSource.apply(snapshot)
+        dataSource?.apply(snapshot)
     }
 }
 

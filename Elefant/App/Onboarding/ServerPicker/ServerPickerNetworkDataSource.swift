@@ -14,9 +14,9 @@ import ElefantAPI
 }
 
 @MainActor struct DefaultServerPickerNetworkDataSource: ServerPickerNetworkDataSource {
-    let client: NetworkClient
+    let client: any NetworkClient
     
     func getServerPickerItems() async throws -> [Server] {
-        return try await ElefantAPI.Onboarding.ServerList().request(using: client)
+        return try await ElefantAPI.Onboarding.ServerListV2().request(using: client)
     }
 }

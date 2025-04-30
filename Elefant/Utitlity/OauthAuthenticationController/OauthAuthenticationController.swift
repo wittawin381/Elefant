@@ -47,12 +47,8 @@ protocol OauthAuthenticationControllerDelegate: ASWebAuthenticationPresentationC
     }
     
     private func oauthAuthorize(with domain: String, clientID: String, clientSecret: String, redirectURI: String) async throws -> URL {
-        let client = ElefantClient(
-            session: URLSession.shared,
-            server: ElefantClient.Server(domain: domain))
-        
-        let urlRequest = try client.createRequest(from: ElefantAPI.OAuth.Authorize(clientID: clientID, redirectURI: redirectURI))
-        guard let url = urlRequest.url else {
+        let url = ElefantAPI.OAuth.AuthorizeV2(clientID: clientID, redirectURI: redirectURI).createRequestURL(domain: domain)
+        guard let url else {
             throw OauthAuthenticationControllerError.invalidRequestURL
         }
         return await withCheckedContinuation { continuation in
@@ -67,15 +63,16 @@ protocol OauthAuthenticationControllerDelegate: ASWebAuthenticationPresentationC
         }
     }
     
-    private func oauthToken(with url: URL, domain: String, clientID: String, clientSecret: String) async throws -> ElefantAPI.OAuth.OAuthToken.Response {
+    private func oauthToken(with url: URL, domain: String, clientID: String, clientSecret: String) async throws -> ElefantAPI.OAuth.OAuthTokenV2.Response {
         let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true)
         guard let code = urlComponents?.queryItems?.first(where: { $0.name == "code" })?.value else {
             throw OauthAuthenticationControllerError.invalidResponseURL
         }
         let client = ElefantClient(
             session: URLSession.shared,
-            server: ElefantClient.Server(domain: domain))
+            server: ElefantClient.Server(domain: domain),
+            middlewares: .init(middlewares: []))
         
-        return try await ElefantAPI.OAuth.OAuthToken(code: code, clientID: clientID, clientSecret: clientSecret).request(using: client)
+        return try await ElefantAPI.OAuth.OAuthTokenV2(code: code, clientID: clientID, clientSecret: clientSecret).request(using: client)
     }
 }

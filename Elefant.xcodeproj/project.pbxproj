@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2556C2FF2DBBF0DB002671F6 /* HTMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 2556C2FE2DBBF0DB002671F6 /* HTMLParser */; };
 		25E4724C2D9E73A400F069CF /* ElefantAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 25E4724B2D9E73A400F069CF /* ElefantAPI */; };
 		25E47B272D9FC0A200F069CF /* ElefantEntity in Frameworks */ = {isa = PBXBuildFile; productRef = 25E47B262D9FC0A200F069CF /* ElefantEntity */; };
 /* End PBXBuildFile section */
@@ -74,6 +75,7 @@
 			files = (
 				25E4724C2D9E73A400F069CF /* ElefantAPI in Frameworks */,
 				25E47B272D9FC0A200F069CF /* ElefantEntity in Frameworks */,
+				2556C2FF2DBBF0DB002671F6 /* HTMLParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,6 +148,7 @@
 			packageProductDependencies = (
 				25E4724B2D9E73A400F069CF /* ElefantAPI */,
 				25E47B262D9FC0A200F069CF /* ElefantEntity */,
+				2556C2FE2DBBF0DB002671F6 /* HTMLParser */,
 			);
 			productName = Elefant;
 			productReference = 25E456622D95214100F069CF /* Elefant.app */;
@@ -229,6 +232,9 @@
 			);
 			mainGroup = 25E456592D95214100F069CF;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2556C2FD2DBBF0DB002671F6 /* XCLocalSwiftPackageReference "../../HTMLParser" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 25E456632D95214100F069CF /* Products */;
 			projectDirPath = "";
@@ -593,7 +599,18 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		2556C2FD2DBBF0DB002671F6 /* XCLocalSwiftPackageReference "../../HTMLParser" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../HTMLParser;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		2556C2FE2DBBF0DB002671F6 /* HTMLParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HTMLParser;
+		};
 		25E4724B2D9E73A400F069CF /* ElefantAPI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ElefantAPI;

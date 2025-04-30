@@ -14,6 +14,7 @@ class AppEntryController: UINavigationController, FlowController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        isNavigationBarHidden = true
         
         NotificationCenter.default.addObserver(
             forName: NSNotification.Name.SessionManagerDidSelectActiveProfile,
@@ -52,7 +53,8 @@ class AppEntryController: UINavigationController, FlowController {
     
     private func handleProfileFailToSelect() {
         popToRootViewController(animated: true)
-        let onboardingFlow = OnboardingFlowController()
+        let appEnvironment = (UIApplication.shared.delegate as? AppDelegate)!.environment
+        let onboardingFlow = OnboardingFlowController(appEnvironment: appEnvironment)
         onboardingFlow.modalPresentationStyle = .fullScreen
         onboardingFlow.start(on: self)
     }

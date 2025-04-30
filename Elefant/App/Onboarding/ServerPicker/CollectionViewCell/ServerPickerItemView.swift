@@ -63,7 +63,7 @@ class ServerPickerItemView: UIView {
         ])
         
         let bottomConstraint = totalUsersLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16)
-        bottomConstraint.priority = .defaultHigh
+        bottomConstraint.priority = .required
         totalUsersLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(totalUsersLabel)
         NSLayoutConstraint.activate([

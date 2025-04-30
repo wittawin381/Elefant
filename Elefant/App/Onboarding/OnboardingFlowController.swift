@@ -17,11 +17,14 @@ protocol OnboardingFlowDelegate: AnyObject {
 
 class OnboardingFlowController: UINavigationController, FlowController {
     var rootNavigationController: UINavigationController { self }
+    let appEnvironment: AppEnvironmentDataProvider
     private var authenticationController: AppAuthenticationController
     
-    init(authenticationController: AppAuthenticationController = OauthAuthenticationController()) {
+    init(authenticationController: AppAuthenticationController = OauthAuthenticationController(),
+         appEnvironment: AppEnvironmentDataProvider) {
         let viewController = OnboardingViewController()
         self.authenticationController = authenticationController
+        self.appEnvironment = appEnvironment
         
         super.init(rootViewController: viewController)
         
@@ -57,15 +60,16 @@ extension OnboardingFlowController: ServerPickerViewControllerDelegate {
     private func registerApp(_ serverPickerViewController: ServerPickerViewController, with server: Server) async throws -> CredentialApplication {
         let client = ElefantClient(
             session: URLSession.shared,
-            server: ElefantClient.Server(domain: server.domain)
+            server: ElefantClient.Server(domain: server.domain),
+            middlewares: MiddlewareGroup(middlewares: [])
         )
         
-        return try await ElefantAPI.Apps.RegisterApp.default.request(using: client)
+        return try await ElefantAPI.Apps.RegisterAppV2.default.request(using: client)
     }
 }
 
 extension OnboardingFlowController {
-    private func performLogin(with server: Server, credentialApplication: ElefantAPI.Apps.RegisterApp.Response) async throws {
+    private func performLogin(with server: Server, credentialApplication: ElefantAPI.Apps.RegisterAppV2.Response) async throws {
         let oauthToken = try await authenticationController.performAuthentication(with: server.domain, credentialApplication: credentialApplication)
         await setProfile(domain: server.domain, oauthToken: oauthToken)
     }
@@ -75,9 +79,11 @@ extension OnboardingFlowController {
             id: UUID().uuidString,
             domain: domain,
             oauthToken: oauthToken)
-        let profileController = (UIApplication.shared.delegate as? AppDelegate)?.profileController
-        if let isProfileAdded = await profileController?.addProfile(profile: profile), isProfileAdded {
-            profileController?.selectActiveProfile(profileID: profile.id)
+        
+        let profileController = appEnvironment.profileController
+        let isProfileAdded = await profileController.addProfile(profile: profile)
+        if isProfileAdded {
+            profileController.selectActiveProfile(profileID: profile.id)
         }
     }
     

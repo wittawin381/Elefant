@@ -18,9 +18,10 @@ class ServerPickerViewController: UIViewController {
     private let networkDataSource: ServerPickerNetworkDataSource = DefaultServerPickerNetworkDataSource(
         client: ElefantClient(
             session: URLSession.shared,
-            server: ElefantClient.Server(domain: "api.joinmastodon.org")))
+            server: ElefantClient.Server(domain: "api.joinmastodon.org"),
+            middlewares: .init(middlewares: [])))
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
-    private var dataSource = ServerPickerDataSource()
+    private let dataSource: ServerPickerViewControllerDataSource = ServerPickerDataSource()
     
     weak var delegate: ServerPickerViewControllerDelegate?
     

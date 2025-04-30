@@ -7,22 +7,20 @@
 
 import UIKit
 import CoreData
+import ElefantAPI
 
 let kSessionProfileNotificationDataKey = "session_profile_notification_key"
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    lazy var profileController: ProfileController = {
-        let profileController = ProfileController(keychain: Keychain(), userDefaults: UserDefaults(suiteName: "suite.com.wittawin.Elefant") ?? UserDefaults.standard)
-        profileController.delegate = self
-        
-        return profileController
-    } ()
+    var environment: AppEnvironment = .anonymous
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        environment.profileController.delegate = self
         Task {
-            await profileController.loadProfile()
+            await environment.profileController.loadProfile()
         }
         return true
     }
@@ -90,7 +88,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate: ProfileControllerDelegate {
     func profileController(_ profileController: ProfileController, didSelectActiveProfile profile: Profile) {
-        NotificationCenter.default.post(
+        environment = .signedIn(
+            client: ElefantClient(
+                session: URLSession.shared,
+                server: ElefantClient.Server(domain: profile.domain),
+                middlewares: .init(middlewares: [
+                    OauthMiddleware(profileController: profileController)
+                ])))
+            NotificationCenter.default.post(
             name: NSNotification.Name.SessionManagerDidSelectActiveProfile,
             object: nil,
             userInfo: [kSessionProfileNotificationDataKey: profile])
