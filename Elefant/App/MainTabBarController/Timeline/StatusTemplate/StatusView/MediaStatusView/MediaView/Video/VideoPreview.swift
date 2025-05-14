@@ -109,8 +109,7 @@ class VideoPreview: UIView, CancellableView, MediaPreviewableItem {
             }
         }
         
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(videoPreviewDidTap))
-//        addGestureRecognizer(tapGesture)
+        videoPlayerLayer.videoGravity = .resizeAspectFill
     }
     
     @objc private func videoPreviewDidTap() {
@@ -167,15 +166,16 @@ extension VideoPreview: UIContentView {
         
         player?.publisher(for: \.timeControlStatus)
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
             .sink { [weak self] status in
                 guard let self else { return }
                 switch status {
-                case .paused:
+                case .paused, .waitingToPlayAtSpecifiedRate:
                     playButton.isHidden = false
-                case .waitingToPlayAtSpecifiedRate:
                     break
                 case .playing:
                     playButton.isHidden = true
+                    break
                 @unknown default:
                     break
                 }

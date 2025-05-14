@@ -65,9 +65,43 @@ class TimelineViewController: UIViewController {
     
     private func setupView() {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
-        configuration.itemSeparatorHandler = { indexPath, configuration in
+        configuration.itemSeparatorHandler = { [weak self] indexPath, configuration in
+            guard let self else { return configuration }
             var newConfiguration = configuration
-            newConfiguration.topSeparatorVisibility = .hidden
+            
+            if let snapshot = dataController.dataSource?.snapshot() {
+                let section = snapshot.sectionIdentifiers[indexPath.section]
+                let items = snapshot.itemIdentifiers(inSection: section)
+                let item = items[indexPath.row]
+                
+                if case .statusMediaView(_) = item {
+                    newConfiguration.topSeparatorVisibility = .hidden
+                    newConfiguration.bottomSeparatorVisibility = .hidden
+                }
+                
+                if case .statusTextContent(_) = item {
+                    newConfiguration.topSeparatorVisibility = .hidden
+                    newConfiguration.bottomSeparatorVisibility = .hidden
+                }
+                
+                if case .statusHeader(_) = item {
+                    newConfiguration.bottomSeparatorVisibility = .hidden
+                }
+            }
+            
+            
+            if indexPath.section == 0, indexPath.row == 0 {
+                newConfiguration.topSeparatorVisibility = .hidden
+            }
+            if indexPath.section == collectionView.numberOfSections - 2, indexPath.row == collectionView.numberOfItems(inSection: indexPath.section) - 1 {
+                newConfiguration.bottomSeparatorVisibility = .hidden
+            }
+            if let section = dataController.dataSource?.snapshot().sectionIdentifiers[indexPath.section] {
+                if case .loadMore = section {
+                    newConfiguration.topSeparatorVisibility = .hidden
+                    newConfiguration.bottomSeparatorVisibility = .hidden
+                }
+            }
             return newConfiguration
         }
         collectionView.collectionViewLayout = UICollectionViewCompositionalLayout.list(using: configuration)
@@ -80,7 +114,7 @@ class TimelineViewController: UIViewController {
         refreshControl.addTarget(self, action: #selector(timelineDidLoadTop), for: .valueChanged)
     }
     
-    private func setupNavigationBarItems() {        
+    private func setupNavigationBarItems() {
         let timelineTypeButton = UIBarButtonItemGroup(
             barButtonItems: [
                 UIBarButtonItem(title: "Menu", style: .plain, target: self, action: nil)],
@@ -120,7 +154,6 @@ class TimelineViewController: UIViewController {
                 
                 print("before: \(before) \(collectionView.contentOffset.y)")
                 try await dataController.fetchBeforeFirst(limit: 20, request: currentTimelineMode)
-//                collectionView.contentOffset = CGPoint(x: 0, y: collectionView.contentSize.height - bottomOffset)
                 print("after: \(collectionView.contentSize.height)")
                 collectionView.contentOffset.y = (firstCell?.frame.minY ?? 0) - collectionView.adjustedContentInset.top
                 refreshControl.endRefreshing()

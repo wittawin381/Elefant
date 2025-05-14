@@ -17,7 +17,7 @@ struct MediaViewConfiguration: UIContentConfiguration {
     let mediaAttachments: [MediaType]
     
     func makeContentView() -> any UIView & UIContentView {
-        MediaView()
+        MediaView(configuration: self)
     }
     
     func updated(for state: any UIConfigurationState) -> Self {

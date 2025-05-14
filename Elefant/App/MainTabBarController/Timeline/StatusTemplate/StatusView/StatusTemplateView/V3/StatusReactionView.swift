@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class StatusReactionView: UIView {
+class StatusReactionViewV2: UIView {
     private let stackView = UIStackView()
     private let replyButton = UIButton(type: .custom)
     private let reblogButton = UIButton(type: .custom)
@@ -16,7 +16,10 @@ class StatusReactionView: UIView {
     private let bookmarkButton = UIButton(type: .custom)
     private let shareButton = UIButton(type: .custom)
     private var actionHandler: ActionHandler?
+    private var statusWatcher: StatusWatcher?
+    private var watcher: AnyStatusObserver?
 
+    private var appliedConfiguration: Configuration
     
     typealias ActionHandler = (Action) async -> Bool
     
@@ -28,18 +31,20 @@ class StatusReactionView: UIView {
         case share
     }
     
-    private var configuration: Configuration = Configuration(
-        statusID: "",
-        reactionData: Configuration.Reaction(
-            repliesCount: 0,
-            reblogsCount: 0,
-            reblogged: false,
-            favouritesCount: 0,
-            favourited: false,
-            bookmarked: false),
-        actionHandler: nil)
+    init(configuration: Configuration) {
+        self.appliedConfiguration = configuration
+        super.init(frame: .zero)
+        
+        apply(configuration: configuration)
+        setupLayout()
+        setupView()
+    }
     
-    struct Configuration: Hashable {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    struct Configuration: UIContentConfiguration, Hashable {
         let statusID: String
         struct Reaction: Hashable {
             let repliesCount: Int
@@ -52,50 +57,38 @@ class StatusReactionView: UIView {
         let reactionData: Reaction
         let actionHandler: ActionHandler?
         
-        static func == (lhs: StatusReactionView.Configuration, rhs: StatusReactionView.Configuration) -> Bool {
+        static func == (lhs: StatusReactionViewV2.Configuration, rhs: StatusReactionViewV2.Configuration) -> Bool {
             return lhs.reactionData == rhs.reactionData
         }
         
         func hash(into hasher: inout Hasher) {
             hasher.combine(reactionData)
         }
-    }
-    
-    func configure(with configuration: Configuration) {
-        self.configuration = configuration
-        actionHandler = configuration.actionHandler
-
-        let reactionData = configuration.reactionData
-        replyButton.setTitle(reactionData.repliesCount.formattedShort, for: .normal)
         
-        reblogButton.setTitle(reactionData.repliesCount.formattedShort, for: .normal)
-        reblogButton.isSelected = configuration.reactionData.reblogged
+        func makeContentView() -> any UIView & UIContentView {
+            StatusReactionViewV2(configuration: self)
+        }
         
-        favouriteButton.setTitle(reactionData.favouritesCount.formattedShort, for: .normal)
-        favouriteButton.isSelected = configuration.reactionData.favourited
-        
-        bookmarkButton.isSelected = configuration.reactionData.bookmarked
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupLayout()
-        setupView()
-    }
-    
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        func updated(for state: any UIConfigurationState) -> StatusReactionViewV2.Configuration {
+            self
+        }
     }
     
     private func setupLayout() {
+        layoutMargins = UIEdgeInsets(
+            top: 0,
+            left: StatusViewConfiguration.padding,
+            bottom: 0,
+            right: StatusViewConfiguration.padding)
+        
         addSubview(stackView)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: StatusViewConfiguration.defaultContentLeadingSpacing),
             stackView.topAnchor.constraint(equalTo: topAnchor),
             stackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.heightAnchor.constraint(equalToConstant: 44),
         ])
         
         stackView.addArrangedSubview(replyButton)
@@ -189,13 +182,13 @@ class StatusReactionView: UIView {
         bookmarkButton.isHidden = true
         
         var shareButtonConfiguration = UIButton.Configuration.reactionButton()
-        shareButtonConfiguration.image = UIImage(systemName: "square.and.arrow.up")?
+        shareButtonConfiguration.image = UIImage(systemName: "paperplane")?
             .withRenderingMode(.alwaysOriginal)
             .withTintColor(.systemGray)
         shareButton.contentHorizontalAlignment = .left
         shareButton.configuration = shareButtonConfiguration
         shareButton.addTarget(self, action: #selector(shareButtonDidTap), for: .touchUpInside)
-        shareButton.isHidden = true
+        shareButton.isHidden = false
     }
     
     @objc private func replyButtonDidTap() {
@@ -207,9 +200,9 @@ class StatusReactionView: UIView {
     @objc private func reblogButtonDidTap() {
         reblogButton.isSelected.toggle()
         Task {
-            let isCurrentlyReblog = configuration.reactionData.reblogged
+            let isCurrentlyReblog = appliedConfiguration.reactionData.reblogged
             let isConfirmAction = await actionHandler?(.reblog(!isCurrentlyReblog)) ?? false
-            let oldConfiguration = self.configuration
+            let oldConfiguration = self.appliedConfiguration
             
             let (newReblogCount, newIsReblogged): (Int, Bool) = {
                 if isCurrentlyReblog && isConfirmAction {
@@ -230,14 +223,14 @@ class StatusReactionView: UIView {
                     favourited: oldConfiguration.reactionData.favourited,
                     bookmarked: oldConfiguration.reactionData.bookmarked),
                 actionHandler: oldConfiguration.actionHandler)
-            configure(with: newConfiguration)
+            apply(configuration: newConfiguration)
         }
     }
     
     @objc private func favouriteButtonDidTap() {
         Task {
-            let isFavorite = !configuration.reactionData.favourited
-            let oldConfiguration = self.configuration
+            let isFavorite = !appliedConfiguration.reactionData.favourited
+            let oldConfiguration = self.appliedConfiguration
             let oldFavoriteCount = oldConfiguration.reactionData.favouritesCount
             let newFavoriteCount = isFavorite ? oldFavoriteCount + 1 : oldFavoriteCount - 1
             
@@ -251,18 +244,18 @@ class StatusReactionView: UIView {
                     favourited: isFavorite,
                     bookmarked: oldConfiguration.reactionData.bookmarked),
                 actionHandler: oldConfiguration.actionHandler)
-            configure(with: newConfiguration)
+            apply(configuration: newConfiguration)
             
-            _ = await actionHandler?(.favourite(isFavorite, configuration.statusID))
+            _ = await actionHandler?(.favourite(isFavorite, appliedConfiguration.statusID))
             
         }
     }
     
     @objc private func bookmarkButtonDidTap() {
         Task {
-            let isBookmark = !configuration.reactionData.bookmarked
+            let isBookmark = !appliedConfiguration.reactionData.bookmarked
             _ = await actionHandler?(.bookmark(isBookmark))
-            let oldConfiguration = self.configuration
+            let oldConfiguration = self.appliedConfiguration
                     
             let newConfiguration = Configuration(
                 statusID: oldConfiguration.statusID,
@@ -274,7 +267,7 @@ class StatusReactionView: UIView {
                     favourited: oldConfiguration.reactionData.favourited,
                     bookmarked: isBookmark),
                 actionHandler: oldConfiguration.actionHandler)
-            configure(with: newConfiguration)
+            apply(configuration: newConfiguration)
         }
     }
     
@@ -282,6 +275,66 @@ class StatusReactionView: UIView {
         Task {
             await actionHandler?(.share)
         }
+    }
+}
+
+extension StatusReactionViewV2: UIContentView {
+    var configuration: any UIContentConfiguration {
+        get { appliedConfiguration }
+        set(newValue) {
+            guard let configuration = newValue as? Configuration else { return }
+            apply(configuration: configuration)
+        }
+    }
+    
+    private func apply(configuration: Configuration) {
+        appliedConfiguration = configuration
+        configure(with: configuration)
+        
+        let watcher = AnyStatusObserver(statusID: configuration.statusID) { [weak self] status in
+            guard let self else { return }
+            let newConfiguration = StatusReactionViewV2.Configuration(
+                statusID: status.id,
+                reactionData: StatusReactionViewV2.Configuration.Reaction(
+                    repliesCount: status.repliesCount,
+                    reblogsCount: status.reblogsCount,
+                    reblogged: status.reblogged ?? false,
+                    favouritesCount: status.favouritesCount,
+                    favourited: status.favourited ?? false,
+                    bookmarked: status.bookmarked ?? false),
+                actionHandler: appliedConfiguration.actionHandler
+            )
+            
+            configure(with: newConfiguration)
+        }
+        
+        self.watcher = watcher
+        statusWatcher?.addObserver(watcher)
+    }
+    
+    private func configure(with configuration: Configuration) {
+        actionHandler = configuration.actionHandler
+
+        let reactionData = configuration.reactionData
+        replyButton.setTitle(reactionData.repliesCount.formattedShort, for: .normal)
+        
+        reblogButton.setTitle(reactionData.repliesCount.formattedShort, for: .normal)
+        reblogButton.isSelected = configuration.reactionData.reblogged
+        
+        favouriteButton.setTitle(reactionData.favouritesCount.formattedShort, for: .normal)
+        favouriteButton.isSelected = configuration.reactionData.favourited
+        
+        bookmarkButton.isSelected = configuration.reactionData.bookmarked
+    }
+}
+
+extension StatusReactionViewV2: CancellableView {
+    func cancel() {
+        if let watcher {
+            statusWatcher?.removeObserver(watcher)
+        }
+        statusWatcher = nil
+        watcher = nil
     }
 }
 

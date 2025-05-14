@@ -8,9 +8,9 @@
 import Foundation
 import UIKit
 
-final class StatusThreadView: UIView {
-    private let profileImageView = StatusProfileImageView()
-    private var imageTask: Task<Void, Never>?
+final class StatusThreadView: CellReusableView {
+    let profileImageView = StatusProfileImageView()
+    var imageTask: Task<Void, Never>?
     
     var actionHandler: ActionHandler?
     

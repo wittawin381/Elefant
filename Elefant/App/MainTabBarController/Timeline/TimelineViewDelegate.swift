@@ -82,6 +82,10 @@ class TimelineCollectionViewDelegate: NSObject, UICollectionViewDelegate {
             timelineViewDelegate?.timelineWillFetchMore()
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        
+    }
 }
 
 @MainActor struct VisibleMediaView {

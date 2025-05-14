@@ -52,8 +52,8 @@
             filePath = "Elefant/App/MainTabBarController/Timeline/StatusTemplate/StatusView/MediaStatusView/MediaView/MediaView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "340"
-            endingLineNumber = "340"
+            startingLineNumber = "342"
+            endingLineNumber = "342"
             landmarkName = "createLayout(for:collectionViewWidth:maxContentHeight:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -68,9 +68,9 @@
             filePath = "Elefant/App/MainTabBarController/Timeline/StatusTemplate/StatusView/MediaStatusView/MediaView/MediaView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "87"
-            endingLineNumber = "87"
-            landmarkName = "init(frame:)"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
+            landmarkName = "layoutSubviews()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -109,22 +109,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "1FCD4487-EC4E-4042-9D77-495BC3166271"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Elefant/App/MainTabBarController/Timeline/StatusTemplate/StatusView/MediaStatusView/MediaView/Video/VideoPreview.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "156"
-            endingLineNumber = "156"
-            landmarkName = "apply(configuration:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "4AA916C9-0BDD-4995-983C-6144A82376D6"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -148,8 +132,8 @@
             filePath = "Elefant/App/MainTabBarController/Timeline/StatusTemplate/StatusView/StatusTemplateView/StatusTemplateView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "158"
-            endingLineNumber = "158"
+            startingLineNumber = "169"
+            endingLineNumber = "169"
             landmarkName = "setupLayout()"
             landmarkType = "7">
          </BreakpointContent>
@@ -157,33 +141,46 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "618F7170-C2AF-4F7C-A746-E81580DE7C12"
+            uuid = "702C90AF-2F44-4BCE-B5F5-86A477236639"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Elefant/App/MainTabBarController/Timeline/StatusTemplate/StatusView/MediaStatusView/MediaView/Video/VideoPreview.swift"
+            filePath = "../ElefantAPI/Sources/ElefantAPI/ElefantClient.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "166"
-            endingLineNumber = "166"
-            landmarkName = "apply(configuration:)"
+            startingLineNumber = "63"
+            endingLineNumber = "63"
+            landmarkName = "perform(request:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "A6640D09-180A-4C4A-89D4-CDDF5260C1DA"
+            uuid = "561ADE3C-B294-40BA-9595-D397DDE065E1"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Elefant/App/MainTabBarController/Timeline/StatusTemplate/StatusView/MediaStatusView/MediaView/Video/VideoPreview.swift"
+            filePath = "../ElefantAPI/Sources/ElefantAPI/ElefantClient.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "174"
-            endingLineNumber = "174"
-            landmarkName = "apply(configuration:)"
+            startingLineNumber = "67"
+            endingLineNumber = "67"
+            landmarkName = "perform(request:)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.SymbolicBreakpoint">
+         <BreakpointContent
+            uuid = "A1CD93CF-23D3-4A8D-B573-A53B1036B55F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            symbolName = "systemLayoutSizeFittingSize"
+            moduleName = "">
+            <Locations>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

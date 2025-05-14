@@ -70,8 +70,10 @@ class MediaView: UIView {
         }
     }
     
-    override init(frame: CGRect) {
+    init(configuration: MediaViewConfiguration) {
+        appliedConfiguration = configuration
         super.init(frame: .zero)
+        apply(configuration: configuration)
         setupLayout()
         setupCollectionView()
         
